@@ -33,6 +33,8 @@ type ApplianceProperties = {
     SafetyLock: boolean;
 
     // Pure A9, Well A7.
+    FilterLife: number;
+    FilterType: number;
     PM1: number;
     PM2_5: number;
     PM10: number;

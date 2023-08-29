@@ -64,6 +64,20 @@ export class AirPurifier extends ElectroluxAccessoryController {
             .onGet(this.getRotationSpeed.bind(this))
             .onSet(this.setRotationSpeed.bind(this));
 
+        if (!this.airPurifierService.testCharacteristic(this.platform.Characteristic.FilterChangeIndication)) {
+            this.airPurifierService.addCharacteristic(this.platform.Characteristic.FilterChangeIndication);
+        }
+        this.airPurifierService
+            .getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .onGet(() => this.getFilterChangeIndication());
+
+        if (!this.airPurifierService.testCharacteristic(this.platform.Characteristic.FilterLifeLevel)) {
+            this.airPurifierService.addCharacteristic(this.platform.Characteristic.FilterLifeLevel);
+        }
+        this.airPurifierService
+            .getCharacteristic(this.platform.Characteristic.FilterLifeLevel)
+            .onGet(() => this.getFilterLifeLevel());
+
         this.airQualityService =
             this.accessory.getService(this.platform.Service.AirQualitySensor) ||
             this.accessory.addService(this.platform.Service.AirQualitySensor);
@@ -234,6 +248,16 @@ export class AirPurifier extends ElectroluxAccessoryController {
         );
     }
 
+    async getFilterChangeIndication(): Promise<CharacteristicValue> {
+        return this.appliance.properties.reported.FilterLife <= 10
+            ? this.platform.Characteristic.FilterChangeIndication.CHANGE_FILTER
+            : this.platform.Characteristic.FilterChangeIndication.FILTER_OK;
+    }
+
+    async getFilterLifeLevel(): Promise<CharacteristicValue> {
+        return this.appliance.properties.reported.FilterLife;
+    }
+
     async getAirQuality(): Promise<CharacteristicValue> {
         if (this.appliance.properties.reported.PM2_5 <= 25) {
             return this.platform.Characteristic.AirQuality.EXCELLENT;
@@ -370,6 +394,13 @@ export class AirPurifier extends ElectroluxAccessoryController {
             this.platform.Characteristic.RotationSpeed,
             this.fanspeedInPercent(),
         );
+
+        this.airPurifierService
+            .updateCharacteristic(
+                this.platform.Characteristic.FilterChangeIndication,
+                await this.getFilterChangeIndication(),
+            )
+            .updateCharacteristic(this.platform.Characteristic.FilterLifeLevel, await this.getFilterLifeLevel());
 
         this.airQualityService.updateCharacteristic(
             this.platform.Characteristic.AirQuality,
