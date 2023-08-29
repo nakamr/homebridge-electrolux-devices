@@ -266,6 +266,16 @@ export class AirPurifier extends ElectroluxAccessoryController {
         return Math.min(vocDensity, 1000);
     }
 
+    carbonDioxideSensorAlarmValue(): number {
+        return this._platform.config.carbonDioxideSensorAlarmValue || 1000;
+    }
+
+    async getCarbonDioxideDetected(): Promise<CharacteristicValue> {
+        return ((await this.getCarbonDioxideLevel()) as number) > this.carbonDioxideSensorAlarmValue()
+            ? this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_ABNORMAL
+            : this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_NORMAL;
+    }
+
     async getCarbonDioxideLevel(): Promise<CharacteristicValue> {
         const reported = this.appliance.properties.reported;
         if (reported.ECO2 !== undefined && reported.CO2 !== undefined) {
