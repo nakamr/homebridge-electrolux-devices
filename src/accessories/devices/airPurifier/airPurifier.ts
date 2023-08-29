@@ -375,7 +375,7 @@ export class AirPurifier extends ElectroluxAccessoryController {
         );
         this.airQualityService.updateCharacteristic(
             this.platform.Characteristic.VOCDensity,
-            this.appliance.properties.reported.TVOC,
+            await this.getVOCDensity(),
         );
 
         this.humiditySensorService.updateCharacteristic(
