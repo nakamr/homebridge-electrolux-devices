@@ -125,7 +125,7 @@ export class ElectroluxDevicesPlatform implements DynamicPlatformPlugin {
                 },
                 {
                     headers: {
-                        'Origin-Country-Code': 'PL',
+                        'Origin-Country-Code': 'FI',
                     },
                 },
             );
