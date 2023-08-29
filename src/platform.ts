@@ -168,6 +168,10 @@ export class ElectroluxDevicesPlatform implements DynamicPlatformPlugin {
     }
 
     private async getAppliances() {
+        if (this.shouldRefreshAccessToken()) {
+            await this.refreshAccessToken();
+        }
+
         const response = await axiosAppliance.get<Appliances>('/appliances?includeMetadata=true', {
             headers: {
                 Authorization: `Bearer ${this.auth.user.accessToken}`,
@@ -177,6 +181,10 @@ export class ElectroluxDevicesPlatform implements DynamicPlatformPlugin {
     }
 
     private async getAppliancesInfo(applianceIds: string[]) {
+        if (this.shouldRefreshAccessToken()) {
+            await this.refreshAccessToken();
+        }
+
         const response = await axiosAppliance.post<AppliancesInfo>(
             '/appliances/info',
             {
